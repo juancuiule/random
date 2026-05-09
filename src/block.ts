@@ -364,12 +364,18 @@ export class Block {
   }
 
   static getBiggest(blocks: Block[]) {
+    if (blocks.length === 0) {
+      return undefined;
+    }
     return blocks.reduce((biggest, block) =>
       block.getSize() > biggest.getSize() ? block : biggest,
     );
   }
 
   static getSquarer(blocks: Block[]): Block | undefined {
+    if (blocks.length === 0) {
+      return undefined;
+    }
     return blocks.reduce((prev, curr) => {
       return Math.abs(1 - prev.props.w / prev.props.h) <
         Math.abs(1 - curr.props.w / curr.props.h)

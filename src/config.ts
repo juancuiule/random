@@ -107,6 +107,7 @@ export const factoryConfig = {
   },
   animatedBlocks: {
     quantity: 3,
+    // TODO: this should use seeded random values
     factors: Array.from({ length: 20 }).map((_) => Math.random()),
   },
   pulleyCables: { quantity: 1, factor: 1.1, width: 20, speed: 0 },

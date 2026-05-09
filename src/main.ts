@@ -1,5 +1,6 @@
 import GUI from "lil-gui";
 import p5 from "p5";
+import { Block, getBlockBase, getNextBlock, getPrevBlock } from "./block";
 import {
   GridItem,
   LAYERS,
@@ -9,11 +10,11 @@ import {
   config,
   factoryConfig,
   icons,
+  inverted,
   palette,
   params,
 } from "./config";
 import { createIndustry } from "./industry";
-import { Block, getNextBlock, getPrevBlock } from "./block";
 import { getKeys } from "./utils";
 
 type IndustryParams = {
@@ -40,6 +41,89 @@ const industryParams: IndustryParams = {
 };
 
 const sketch = (p: p5) => {
+  let debug = false;
+
+  function drawDebug() {
+    p.push();
+    if (assets.font) {
+      p.textFont(assets.font);
+    }
+    p.textSize(8);
+    p.fill(params.colors.background);
+    p.translate(
+      (p.width - config.space.width) / 2,
+      (p.height - config.space.height) / 2,
+    );
+
+    function drawBlock(block: Block) {
+      const { x, y } = block.props;
+      if (block.type === "hidden") {
+        p.fill(inverted[params.colors.background]);
+      } else {
+        p.fill(inverted[block.props.color]);
+      }
+      p.text(block.type, x + 2, y + 10);
+    }
+
+    // Cross at meta-origin (x, y) for every grid item, in cell-local space.
+    // For cells with a meta factory: cross should sit at the top-left corner of
+    // the "meta"-typed host block.
+    // For non-meta cells (x=0, y=0 after the fix): cross is at the cell origin.
+    function drawMetaOriginCross(x: number, y: number, hasMeta: boolean) {
+      const color = hasMeta ? "#ffdd00" : "#ffffff";
+      const size = 8;
+      p.push();
+      p.translate(x, y);
+      p.stroke(color);
+      p.strokeWeight(1.5);
+      p.line(-size, 0, size, 0);
+      p.line(0, -size, 0, size);
+      p.noStroke();
+      p.fill(color);
+      p.text(hasMeta ? "meta origin" : "no meta (0,0)", 4, -3);
+      p.pop();
+    }
+
+    // Dot at each block's center as computed by getBlockBase.
+    // If these dots align with the rendered blocks the whole coordinate
+    // system is self-consistent regardless of the x/y values in GridItem.
+    function drawBaseVerification(block: Block) {
+      const base = getBlockBase(block, factoryGrid);
+      const cx = config.margin.x + base.x + block.props.x + block.props.w / 2;
+      const cy = config.margin.y + base.y + block.props.y + block.props.h / 2;
+      p.noStroke();
+      p.fill(block.type === "meta" ? "#ffdd00" : "#ff0088");
+      p.circle(cx, cy, 5);
+    }
+
+    // Pass 1: labels and meta-origin crosses (inside item-local transforms)
+    factoryGrid.forEach((primaryAxis) => {
+      primaryAxis.forEach((item) => {
+        const { dx, dy, x, y, mainFactory, metaFactory } = item;
+        const hasMeta = metaFactory.length > 0;
+        p.push();
+        p.translate(config.margin.x + dx, config.margin.y + dy);
+        mainFactory.flat().forEach(drawBlock);
+        drawMetaOriginCross(x, y, hasMeta);
+        p.translate(x, y);
+        metaFactory.flat().forEach(drawBlock);
+        p.pop();
+      });
+    });
+
+    // Pass 2: getBlockBase verification dots — drawn at center-translate level
+    // only, so the formula margin + base + block.props is not doubled.
+    const allBlocks = factoryGrid
+      .flat()
+      .flatMap((item) => [
+        ...item.mainFactory.flat(),
+        ...item.metaFactory.flat(),
+      ]);
+    allBlocks.forEach(drawBaseVerification);
+
+    p.pop();
+  }
+
   let layers: Record<LayerName, p5.Graphics> = {
     main: p.createGraphics(p.windowWidth, p.windowHeight),
     pulley: p.createGraphics(p.windowWidth, p.windowHeight),
@@ -55,8 +139,6 @@ const sketch = (p: p5) => {
     });
     assets.font = p.loadFont("/assets/fonts/OverpassMono.ttf");
   }
-
-  let randomFnCalls = 0;
 
   const random = (min: number, max: number) => p.random(min, max);
 
@@ -161,7 +243,9 @@ const sketch = (p: p5) => {
     const biggestBlock = Block.getBiggest(
       everyBlock.filter((b) => b.type === "initial"),
     );
-    biggestBlock.setType("biggest");
+    if (biggestBlock) {
+      biggestBlock.setType("biggest");
+    }
 
     // Screws
     const screwsBlock = everyBlock
@@ -276,8 +360,9 @@ const sketch = (p: p5) => {
       p.redraw();
     }
 
-    if (p.key === "i") {
-      console.log(randomFnCalls);
+    if (p.key === "d") {
+      debug = !debug;
+      p.redraw();
     }
   };
 
@@ -326,9 +411,13 @@ const sketch = (p: p5) => {
       });
     });
 
-    forEachLayer((layer) => p.image(layer, 0, 0));
-    p.pop();
-    forEachLayer((layer) => layer.pop());
+    forEachLayer((layer) => {
+      p.image(layer, 0, 0);
+      layer.pop();
+    });
+
+    if (debug) drawDebug();
+
     // p.noLoop();
   };
 };
@@ -386,7 +475,7 @@ function canBeAnimatedNext(block: Block, factoryGrid: GridItem[][]) {
 
 function canFitLabel(block: Block) {
   const { w, h } = block.props;
-  return w > 100 && h > 4 * config.padding + 2 * 14;
+  return w > 100 && h > 4 * config.padding + 2 * config.textSize;
 }
 
 new p5(sketch);

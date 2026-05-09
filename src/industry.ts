@@ -98,11 +98,12 @@ export function createIndustry(
       // pick biggest block to make a meta factory inside
       const biggest = Block.getBiggest(mainFactory.flat());
       if (
+        biggest &&
         biggest.props.w > 24 * 4 + config.padding * 3 &&
         biggest.props.h > 24 * 4 + config.padding * 3
       ) {
         const {
-          props: { x, y, w: nw, h: nh, id },
+          props: { x, y, w: nw, h: nh },
         } = biggest;
         biggest.setType("meta");
         metaFactory = createFactory(
@@ -124,17 +125,20 @@ export function createIndustry(
           metaFactory,
           dx,
           dy,
-          x, // : config.margin.x + dx,
-          y, // : config.margin.y + dy,
+          x,
+          y,
         };
       } else {
+        // Fires when the biggest block in the cell is too small for a nested
+        // factory. dx/dy still position the cell; x/y are irrelevant because
+        // metaFactory is empty and nothing reads them.
         grid[outer][inner] = {
           mainFactory,
           metaFactory,
           dx,
           dy,
-          x: config.margin.x + dx,
-          y: config.margin.y + dy,
+          x: 0,
+          y: 0,
         };
       }
     }

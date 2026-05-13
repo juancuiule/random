@@ -1,0 +1,127 @@
+import { Font, Image } from "p5";
+import { Block } from "./block";
+
+const WIDTH = 800;
+const HEIGHT = 800;
+const GRID = 0.8;
+const MARGIN = (1 - GRID) / 2;
+
+// replace with p5
+export const config = {
+  space: { width: WIDTH, height: HEIGHT },
+  grid: { width: WIDTH * GRID, height: HEIGHT * GRID },
+  margin: { x: WIDTH * MARGIN, y: HEIGHT * MARGIN },
+  textSize: 14,
+  padding: 4,
+  borderRadius: 4,
+};
+
+export const colors = ["pink", "black", "blue", "white"] as const;
+export const icons = ["tension", "warning", "text"] as const;
+export const LAYERS = ["main", "pulley"] as const;
+
+export type LayerName = (typeof LAYERS)[number];
+export type Color = (typeof colors)[number];
+export type Icon = (typeof icons)[number];
+
+export const palette: Record<Color, string> = {
+  pink: "#fdd7d6",
+  black: "#131313",
+  blue: "#5e5efc",
+  white: "#f4f4f4",
+};
+
+export const inverted: Record<Color, Color> = {
+  pink: "blue",
+  black: "white",
+  blue: "black",
+  white: "blue",
+};
+
+export const nailsPalette: Record<Color, string> = {
+  pink: "#131313",
+  black: "#f4f4f4",
+  blue: "#f4f4f4",
+  white: "#f4f4f4",
+};
+
+export type Assets = {
+  images: Record<Icon, Record<Color, Image | undefined>>;
+  font: Font | undefined;
+};
+
+export const params: Params = {
+  randomIcon: "tension",
+  machineNumber: 128,
+  colors: {
+    background: "pink",
+    block: "blue",
+    biggest: "black",
+  },
+};
+
+export type Params = {
+  randomIcon: Icon;
+  machineNumber: number;
+  colors: {
+    background: Color;
+    block: Color;
+    biggest: Color;
+  };
+};
+
+export const assets: Assets = {
+  images: {
+    tension: {
+      pink: undefined,
+      black: undefined,
+      blue: undefined,
+      white: undefined,
+    },
+    warning: {
+      pink: undefined,
+      black: undefined,
+      blue: undefined,
+      white: undefined,
+    },
+    text: {
+      pink: undefined,
+      black: undefined,
+      blue: undefined,
+      white: undefined,
+    },
+  },
+  font: undefined,
+};
+
+export const factoryConfig = {
+  screws: { padding: 4, size: 10, quantity: 0 },
+  cables: {
+    padding: 20,
+    // TODO: improve this in order to determine number of cables
+    // TODO: and derive deltas from the padding
+    deltas: [-20, 0, 20],
+    length: 12,
+    plugSize: 10,
+    quantity: 0,
+  },
+  animatedBlocks: {
+    quantity: 3,
+    // TODO: this should use seeded random values
+    factors: Array.from({ length: 20 }).map((_) => Math.random()),
+  },
+  pulleyCables: { quantity: 1, factor: 1.1, width: 20, speed: 0 },
+  mainFactoryHiddenRatio: 0.1,
+  metaFactoryHiddenRatio: 0.2,
+};
+
+export type GridItem = {
+  mainFactory: Factory;
+  metaFactory: Factory;
+  dx: number;
+  dy: number;
+  x: number;
+  y: number;
+};
+
+export type Factory = Block[][];

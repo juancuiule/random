@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "scripts": {
     "dev:gelatina": "pnpm --filter gelatina dev",
-    "dev:generative-factory": "pnpm --filter generative-factory dev"
+    "dev:generative-factory": "pnpm --filter generative-factory dev",
+    "dev:bouba": "pnpm --filter bouba dev"
   }
 }

@@ -10,6 +10,7 @@ Each project lives in `projects/` as an independent package with its own depende
 pnpm install
 pnpm dev:gelatina
 pnpm dev:generative-factory
+pnpm dev:bouba
 ```
 
 Or run any project directly:
@@ -17,6 +18,7 @@ Or run any project directly:
 ```bash
 pnpm --filter gelatina dev
 pnpm --filter generative-factory dev
+pnpm --filter bouba dev
 ```
 
 ## Projects
@@ -34,6 +36,14 @@ Three overlapping grids of circles in pink, green and yellow, rendered with blen
 An industrial layout generator that arranges rectangular blocks into factory-like compositions. Blocks are assigned roles (biggest, screws, cables, icon, animated, label, pulley) and drawn across multiple layers. Color palette is limited to four colors (pink, black, blue, white) with randomized assignments per run. Includes a lil-gui control panel and a debug overlay.
 
 **Stack:** p5.js · TypeScript · Vite · lil-gui
+
+---
+
+### [bouba](./projects/bouba)
+
+Generates organic blob shapes inspired by the [bouba/kiki effect](https://en.wikipedia.org/wiki/Bouba/kiki_effect). Two layers of rounded forms are built by chaining non-overlapping circles into a smooth closed contour, then blended with MULTIPLY. The constraint-solving runs iteratively in the background with a loading animation while it resolves. Built for [fxhash](https://www.fxhash.xyz/) — supports PNG and SVG export.
+
+**Stack:** p5.js · TypeScript · webpack · fxhash
 
 ---
 
@@ -55,4 +65,5 @@ Each project was imported via `git subtree` so its history is embedded here. To 
 ```bash
 git subtree pull --prefix=projects/gelatina gelatina main
 git subtree pull --prefix=projects/generative-factory generative-factory main
+git subtree pull --prefix=projects/bouba bouba main
 ```

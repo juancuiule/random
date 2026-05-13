@@ -1,11 +1,12 @@
 {
-  "name": "fxhash-boilerplate-webpack",
+  "name": "gelatina",
   "version": "1.0.0",
   "description": "a boilerplate to create a generative token on fxhash",
   "main": "index.js",
   "author": "fxhash",
   "license": "MIT",
   "scripts": {
+    "dev": "webpack serve --config ./config/webpack.config.dev.js",
     "build": "webpack --config ./config/webpack.config.prod.js",
     "start": "webpack serve --config ./config/webpack.config.dev.js"
   },
